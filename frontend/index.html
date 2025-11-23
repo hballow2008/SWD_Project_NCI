@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> My Note-Taking App </title>
+</head>
+<body>
+    <header>
+        <div>
+            <h1> Welcome to my Note Taker </h1>
+            <div>
+                <button>
+                    User 
+                </button>
+                <button>
+                    Guest
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div>
+            <div></div>
+        </div>
+
+        <div>
+            <input type="text" placeholder="Search for a note..." />
+            <button> Search</button>
+            <button> Clear</button>
+        </div>
+
+        <div>
+            <button>
+                New Note
+            </button>
+
+            <div>
+                <h3 id="formTitle">Create a New Note</h3>
+                <input type="hidden" id="editNoteId" value="">
+                
+                <div>
+                    <label>Title:</label>
+                    <input type="text" placeholder="Enter note title" />
+                </div>
+
+                <div>
+                    <label>Content:</label>
+                    <textarea id="noteContent" rows="6" placeholder="Enter note content"></textarea>
+                </div>
+
+                <div>
+                    <button>
+                        Save
+                    </button>
+                    <button>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2> All Notes </h2>
+            <div>
+                <p>Loading notes...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p> Keep your Notes Safe With Me</p>
+    </footer>
+</body>
+</html>
