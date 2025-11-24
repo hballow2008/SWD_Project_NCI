@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> My Note-Taking App </title>
+    <title>Notes App - Vanilla JS</title>
     <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
     <header class="app-header">
@@ -26,30 +25,30 @@
         <div class="role-info">
             <div id="roleMessage"></div>
         </div>
-
+        <!-- Search Bar -->
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="Search notes..." />
-            <button > Search</button>
-            <button > Clear</button>
+            <button onclick="searchNotes()"> Search</button>
+            <button onclick="clearSearch()"> Clear</button>
         </div>
-
+        <!-- Create Note Section (Only for User) -->
         <div id="createSection" class="create-section">
-            <button class="btn-primary">
+            <button class="btn-primary" onclick="toggleForm()">
                 New Note
             </button>
 
             <div id="noteForm" class="note-form hidden">
-                <h3 > Create New Note </h3>
-                <input type="hidden" value="">
+                <h3 id="formTitle"> Create New Note </h3>
+                <input type="hidden" id="editNoteId" value="">
                 
                 <div class="form-group">
-                    <label > Title: </label>
-                    <input type="text" placeholder="Enter note title" />
+                    <label for="noteTitle"> Title: </label>
+                    <input type="text" id="noteTitle" placeholder="Enter note title" />
                 </div>
 
                 <div class="form-group">
-                    <label> Content: </label>
-                    <textarea rows="6" placeholder="Enter note content"></textarea>
+                    <label for="noteContent"> Content:</label>
+                    <textarea id="noteContent" rows="6" placeholder=" Enter note content "></textarea>
                 </div>
 
                 <div class="form-actions">
@@ -62,18 +61,20 @@
                 </div>
             </div>
         </div>
-
+        <!-- Notes List -->
         <div class="notes-section">
             <h2> All Notes </h2>
-            <div class="notes-grid">
-                <p class="loading">Loading notes...</p>
+            <div id="notesList" class="notes-grid">
+                <p class="loading"> Loading notes... </p>
             </div>
         </div>
     </main>
 
     <footer class="app-footer">
-        <p> Keep your Notes Safe US </p>
+        <p> Keep your Notes Safe With Me</p>
     </footer>
 
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
