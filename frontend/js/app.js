@@ -7,14 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     updateRoleUI();
 });
-
 // Switch between User and Guest roles
 function switchRole(role) {
     currentRole = role;
     updateRoleUI();
     cancelEdit();
 }
-
 // Update UI based on current role
 function updateRoleUI() {
     const userBtn = document.getElementById('userBtn');
@@ -54,7 +52,6 @@ async function loadNotes() {
             '<p class="no-notes">Error loading notes. Make sure the backend is running!</p>';
     }
 }
-
 // Render notes to the page
 function renderNotes(notes) {
     const notesList = document.getElementById('notesList');
@@ -85,7 +82,6 @@ function renderNotes(notes) {
         </div>
     `).join('');
 }
-
 // Toggle note form visibility
 function toggleForm() {
     const noteForm = document.getElementById('noteForm');
@@ -95,7 +91,6 @@ function toggleForm() {
         document.getElementById('noteTitle').focus();
     }
 }
-
 // Save note (create or update)
 async function saveNote() {
     const title = document.getElementById('noteTitle').value.trim();
@@ -106,7 +101,6 @@ async function saveNote() {
         alert('Please fill in both title and content!');
         return;
     }
-
     try {
         if (editNoteId) {
             // Update existing note
@@ -117,7 +111,6 @@ async function saveNote() {
             await api.createNote(title, content, currentRole);
             alert('Note created successfully!');
         }
-
         // Reset form and reload
         cancelEdit();
         loadNotes();
@@ -129,8 +122,7 @@ async function saveNote() {
 // Edit note
 async function editNote(noteId) {
     try {
-        const note = await api.getNote(noteId);
-        
+        const note = await api.getNote(noteId);      
         // Populate form
         document.getElementById('noteTitle').value = note.title;
         document.getElementById('noteContent').value = note.content;
@@ -144,13 +136,11 @@ async function editNote(noteId) {
         alert('Error loading note: ' + error.message);
     }
 }
-
 // Delete note
 async function deleteNote(noteId) {
     if (!confirm('Are you sure you want to delete this note?')) {
         return;
     }
-
     try {
         await api.deleteNote(noteId);
         alert('Note deleted successfully!');
@@ -159,7 +149,6 @@ async function deleteNote(noteId) {
         alert('Error deleting note: ' + error.message);
     }
 }
-
 // Cancel edit
 function cancelEdit() {
     document.getElementById('noteTitle').value = '';
@@ -168,7 +157,6 @@ function cancelEdit() {
     document.getElementById('formTitle').textContent = 'Create New Note';
     document.getElementById('noteForm').classList.add('hidden');
 }
-
 // Search notes
 async function searchNotes() {
     const searchInput = document.getElementById('searchInput');
@@ -178,7 +166,6 @@ async function searchNotes() {
         alert('Please enter a search query!');
         return;
     }
-
     try {
         const notesList = document.getElementById('notesList');
         notesList.innerHTML = '<p class="loading">Searching...</p>';
@@ -192,7 +179,6 @@ async function searchNotes() {
         loadNotes();
     }
 }
-
 // Clear search
 function clearSearch() {
     document.getElementById('searchInput').value = '';
