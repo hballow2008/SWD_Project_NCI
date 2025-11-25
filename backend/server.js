@@ -45,9 +45,6 @@ function initializeDatabase() {
 }
 
 // ============ NOTES ROUTES ============
-
-// ============ PERMISSION HELPERS ============
-
 // Check if user can access note
 function canAccessNote(role, createdBy) {
   if (role === 'admin') return true;
@@ -228,6 +225,44 @@ app.get('/api/notes/search/:query', (req, res) => {
 });
 
 // Start server
+// ============ HARDCODED USERS ============
+const users = [
+  {
+    username: 'Admin',
+    email: 'admin@me.com',
+    password: 'admin123',
+    role: 'admin'
+  },
+  {
+    username: 'Tom',
+    email: 'tom@me.com',
+    password: 'tompass',
+    role: 'user'
+  },
+  {
+    username: 'Jerry',
+    email: 'jerry@me.com',
+    password: 'jerrypass',
+    role: 'user'
+  }
+];
+
+// ============ LOGIN ENDPOINT ============
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.json({ success: false, error: 'Please provide email and password.' });
+  }
+  const user = users.find(u =>
+    u.email.toLowerCase() === email.toLowerCase() &&
+    u.password === password
+  );
+  if (user) {
+    return res.json({ success: true, user: { username: user.username, email: user.email, role: user.role } });
+  } else {
+    return res.json({ success: false, error: 'Invalid credentials.' });
+  }
+});
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Notes API Server',

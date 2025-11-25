@@ -1,18 +1,37 @@
 let currentRole = 'user'; // 'admin' or 'user'
+let currentUser = null; // Store logged-in user info
 let allNotes = [];
 let editingNoteId = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if user is logged in
+    const storedUser = localStorage.getItem('currentUser');
+    if (!storedUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    currentUser = JSON.parse(storedUser);
+    currentRole = currentUser.role;
+    
+    displayUserInfo();
     loadNotes();
     updateRoleUI();
 });
 
-// Switch between Admin and User roles
-function switchRole(role) {
-    currentRole = role;
-    updateRoleUI();
-    cancelEdit();
+// Display user info in header
+function displayUserInfo() {
+    const userDisplay = document.getElementById('userDisplay');
+    const appTitle = document.getElementById('appTitle');
+    userDisplay.textContent = `Welcome, ${currentUser.username}!`;
+    appTitle.textContent = `${currentUser.username}'s Note-Taking App`;
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
 }
 
 // Update UI based on current role

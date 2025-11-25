@@ -9,14 +9,10 @@
 <body>
     <header class="app-header">
         <div class="container">
-            <h1> My Note-Taking App </h1>
-            <div class="role-switcher">
-                <button id="adminBtn" class="role-btn" onclick="switchRole('admin')">
-                    Admin
-                </button>
-                <button id="userBtn" class="role-btn active" onclick="switchRole('user')">
-                    User
-                </button>
+            <h1 id="appTitle"> My Note-Taking App </h1>
+            <div class="header-right">
+                <span id="userDisplay" class="user-display"></span>
+                <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
     </header>
