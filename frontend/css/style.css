@@ -9,6 +9,17 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
+    transition: background 0.5s ease;
+}
+
+/* Admin Theme - Red Gradient */
+body.admin-theme {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+/* User Theme - Green Gradient */
+body.user-theme {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
 }
 
 .container {
@@ -60,8 +71,31 @@ body {
     background: #f0f0f0;
 }
 
-.role-btn.active {
-    background: #667eea;
+#adminBtn {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+#adminBtn:hover {
+    background: #ffe5e5;
+}
+
+#adminBtn.active {
+    background: #dc3545;
+    color: white;
+}
+
+#userBtn {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+#userBtn:hover {
+    background: #e5f5e5;
+}
+
+#userBtn.active {
+    background: #28a745;
     color: white;
 }
 
@@ -72,14 +106,35 @@ body {
     border-radius: 8px;
     margin-bottom: 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid;
+    transition: all 0.3s;
+}
+
+.role-info.admin {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+}
+
+.role-info.admin strong {
+    color: #dc3545;
 }
 
 .role-info.user {
-    border-left: 4px solid #28a745;
+    border-left-color: #28a745;
+    background: #f0fdf4;
+}
+
+.role-info.user strong {
+    color: #28a745;
 }
 
 .role-info.guest {
-    border-left: 4px solid #ffc107;
+    border-left-color: #ffc107;
+    background: #fffaf0;
+}
+
+.role-info.guest strong {
+    color: #ffc107;
 }
 
 #roleMessage {
@@ -311,21 +366,31 @@ body {
 
 .note-badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     margin-right: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-admin {
+    background: #ffe5e5;
+    color: #dc3545;
+    border: 1px solid #dc3545;
 }
 
 .badge-user {
     background: #d4edda;
     color: #155724;
+    border: 1px solid #28a745;
 }
 
 .badge-guest {
     background: #fff3cd;
     color: #856404;
+    border: 1px solid #ffc107;
 }
 
 /* Loading & Empty States */
@@ -338,12 +403,23 @@ body {
 
 /* Footer */
 .app-footer {
-    background: rgba(0, 0, 0, 0.8);
-    color: #ffd700;
     padding: 1rem;
     text-align: center;
     font-weight: bold;
     margin-top: 2rem;
+    transition: all 0.5s ease;
+}
+
+.app-footer.admin-footer {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #ffe5e5;
+    box-shadow: 0 -2px 10px rgba(220, 53, 69, 0.3);
+}
+
+.app-footer.user-footer {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: #d4edda;
+    box-shadow: 0 -2px 10px rgba(40, 167, 69, 0.3);
 }
 
 /* Hidden Class */

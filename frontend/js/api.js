@@ -1,9 +1,9 @@
 const API_URL = 'http://localhost:5001/api';
 
 const api = {
-    getNotes: async () => {
+    getNotes: async (role = 'user') => {
         try {
-            const response = await fetch(`${API_URL}/notes`);
+            const response = await fetch(`${API_URL}/notes?role=${role}`);
             if (!response.ok) throw new Error('Failed to fetch notes');
             return await response.json();
         } catch (error) {
@@ -12,9 +12,9 @@ const api = {
         }
     },
 
-    getNote: async (id) => {
+    getNote: async (id, role = 'user') => {
         try {
-            const response = await fetch(`${API_URL}/notes/${id}`);
+            const response = await fetch(`${API_URL}/notes/${id}?role=${role}`);
             if (!response.ok) throw new Error('Failed to fetch note');
             return await response.json();
         } catch (error) {
@@ -38,12 +38,12 @@ const api = {
         }
     },
 
-    updateNote: async (id, title, content) => {
+    updateNote: async (id, title, content, role = 'user') => {
         try {
             const response = await fetch(`${API_URL}/notes/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content })
+                body: JSON.stringify({ title, content, role })
             });
             if (!response.ok) throw new Error('Failed to update note');
             return await response.json();
@@ -53,9 +53,9 @@ const api = {
         }
     },
 
-    deleteNote: async (id) => {
+    deleteNote: async (id, role = 'user') => {
         try {
-            const response = await fetch(`${API_URL}/notes/${id}`, {
+            const response = await fetch(`${API_URL}/notes/${id}?role=${role}`, {
                 method: 'DELETE'
             });
             if (!response.ok) throw new Error('Failed to delete note');
@@ -66,9 +66,9 @@ const api = {
         }
     },
 
-    searchNotes: async (query) => {
+    searchNotes: async (query, role = 'user') => {
         try {
-            const response = await fetch(`${API_URL}/notes/search/${query}`);
+            const response = await fetch(`${API_URL}/notes/search/${query}?role=${role}`);
             if (!response.ok) throw new Error('Search failed');
             return await response.json();
         } catch (error) {

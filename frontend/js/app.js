@@ -1,4 +1,4 @@
-let currentRole = 'user'; // 'user' or 'guest'
+let currentRole = 'user'; // 'admin' or 'user'
 let allNotes = [];
 let editingNoteId = null;
 
@@ -7,51 +7,65 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     updateRoleUI();
 });
-// Switch between User and Guest roles
+
+// Switch between Admin and User roles
 function switchRole(role) {
     currentRole = role;
     updateRoleUI();
     cancelEdit();
 }
+
 // Update UI based on current role
 function updateRoleUI() {
+    const adminBtn = document.getElementById('adminBtn');
     const userBtn = document.getElementById('userBtn');
-    const guestBtn = document.getElementById('guestBtn');
     const roleMessage = document.getElementById('roleMessage');
     const createSection = document.getElementById('createSection');
     const roleInfo = document.querySelector('.role-info');
+    const body = document.body;
+    const footer = document.querySelector('.app-footer');
 
     // Update active button
-    if (currentRole === 'user') {
+    if (currentRole === 'admin') {
+        adminBtn.classList.add('active');
+        userBtn.classList.remove('active');
+        roleMessage.innerHTML = '<strong>Admin Mode:</strong> You can create, edit, and delete any note.';
+        roleInfo.className = 'role-info admin';
+        createSection.style.display = 'block';
+        
+        // Admin styling - Red theme
+        body.className = 'admin-theme';
+        footer.className = 'app-footer admin-footer';
+    } else {
+        adminBtn.classList.remove('active');
         userBtn.classList.add('active');
-        guestBtn.classList.remove('active');
-        roleMessage.innerHTML = '<strong>User Mode:</strong> You can create, edit, and delete notes.';
+        roleMessage.innerHTML = '<strong>User Mode:</strong> You can create, edit, and delete only your own notes.';
         roleInfo.className = 'role-info user';
         createSection.style.display = 'block';
-    } else {
-        userBtn.classList.remove('active');
-        guestBtn.classList.add('active');
-        roleMessage.innerHTML = '<strong>Guest Mode:</strong> You can only view notes (read-only).';
-        roleInfo.className = 'role-info guest';
-        createSection.style.display = 'none';
+        
+        // User styling - Green theme
+        body.className = 'user-theme';
+        footer.className = 'app-footer user-footer';
     }
 
     // Re-render notes to update action buttons
     renderNotes(allNotes);
 }
+
 // Load all notes
 async function loadNotes() {
     try {
         const notesList = document.getElementById('notesList');
         notesList.innerHTML = '<p class="loading">Loading notes...</p>';
         
-        allNotes = await api.getNotes();
+        allNotes = await api.getNotes(currentRole);
         renderNotes(allNotes);
     } catch (error) {
         document.getElementById('notesList').innerHTML = 
             '<p class="no-notes">Error loading notes. Make sure the backend is running!</p>';
     }
 }
+
 // Render notes to the page
 function renderNotes(notes) {
     const notesList = document.getElementById('notesList');
@@ -61,11 +75,15 @@ function renderNotes(notes) {
         return;
     }
 
-    notesList.innerHTML = notes.map(note => `
+    notesList.innerHTML = notes.map(note => {
+        // Show action buttons if admin OR if it's the user's own note
+        const canEdit = currentRole === 'admin' || note.created_by === currentRole;
+        
+        return `
         <div class="note-card">
             <div class="note-card-header">
                 <h3>${note.title}</h3>
-                ${currentRole === 'user' ? `
+                ${canEdit ? `
                     <div class="note-actions">
                         <button class="btn-edit" onclick="editNote(${note.id})">Edit</button>
                         <button class="btn-delete" onclick="deleteNote(${note.id})">Delete</button>
@@ -80,7 +98,7 @@ function renderNotes(notes) {
                 <span>Created: ${new Date(note.created_at).toLocaleDateString()}</span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 // Toggle note form visibility
 function toggleForm() {
@@ -104,10 +122,10 @@ async function saveNote() {
     try {
         if (editNoteId) {
             // Update existing note
-            await api.updateNote(editNoteId, title, content);
+            await api.updateNote(editNoteId, title, content, currentRole);
             alert('Note updated successfully!');
         } else {
-            // Create new note - VULNERABLE: No sanitization, XSS possible
+            // Create new note
             await api.createNote(title, content, currentRole);
             alert('Note created successfully!');
         }
@@ -122,7 +140,7 @@ async function saveNote() {
 // Edit note
 async function editNote(noteId) {
     try {
-        const note = await api.getNote(noteId);      
+        const note = await api.getNote(noteId, currentRole);      
         // Populate form
         document.getElementById('noteTitle').value = note.title;
         document.getElementById('noteContent').value = note.content;
@@ -136,13 +154,14 @@ async function editNote(noteId) {
         alert('Error loading note: ' + error.message);
     }
 }
+
 // Delete note
 async function deleteNote(noteId) {
     if (!confirm('Are you sure you want to delete this note?')) {
         return;
     }
     try {
-        await api.deleteNote(noteId);
+        await api.deleteNote(noteId, currentRole);
         alert('Note deleted successfully!');
         loadNotes();
     } catch (error) {
@@ -170,15 +189,15 @@ async function searchNotes() {
         const notesList = document.getElementById('notesList');
         notesList.innerHTML = '<p class="loading">Searching...</p>';
         
-        // VULNERABLE: Direct search without sanitization
-        const results = await api.searchNotes(query);
+        const results = await api.searchNotes(query, currentRole);
         allNotes = results;
         renderNotes(results);
     } catch (error) {
-        alert(' Search error: ' + error.message);
+        alert('Search error: ' + error.message);
         loadNotes();
     }
 }
+
 // Clear search
 function clearSearch() {
     document.getElementById('searchInput').value = '';
