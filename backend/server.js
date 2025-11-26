@@ -35,10 +35,26 @@ function initializeDatabase() {
     db.run(`
       INSERT OR IGNORE INTO notes (id, title, content, created_by)
       VALUES 
-        (1, 'Welcome Note', 'This is a sample note created by user', 'user'),
-        (2, 'Shopping List', 'Milk, Eggs, Bread, Coffee', 'user'),
-        (3, 'Meeting Notes', 'Discuss project timeline and deliverables', 'user')
+        (1, '1. Welcom to ADMIN ACCOUNT.', '1. Welcom to ADMIN ACCOUNT.', 'admin')
     `);
+
+    // Migrate sample notes to admin so they don't appear in normal users' sandboxes
+    db.run("UPDATE notes SET created_by = 'admin' WHERE created_by = 'user'", (err) => {
+      if (err) {
+        console.error('Error migrating sample notes:', err.message || err);
+      } else {
+        console.log('Sample notes migrated to admin');
+      }
+    });
+
+    // Remove unwanted sample notes (shopping list, meeting notes) if present
+    db.run("DELETE FROM notes WHERE id IN (2,3) OR title IN ('Shopping List','Meeting Notes')", (err) => {
+      if (err) {
+        console.error('Error deleting sample notes:', err.message || err);
+      } else {
+        console.log('Removed unwanted sample notes');
+      }
+    });
 
     console.log('Database initialized successfully');
   });
@@ -46,30 +62,32 @@ function initializeDatabase() {
 
 // ============ NOTES ROUTES ============
 // Check if user can access note
-function canAccessNote(role, createdBy) {
+// Check if user can access note. For non-admins, compare by username.
+function canAccessNote(role, createdBy, username) {
   if (role === 'admin') return true;
-  return role === createdBy;
+  return createdBy === username;
 }
 
-// Check if user can modify note
-function canModifyNote(role, createdBy) {
+// Check if user can modify note. For non-admins, compare by username.
+function canModifyNote(role, createdBy, username) {
   if (role === 'admin') return true;
-  return role === createdBy;
+  return createdBy === username;
 }
 
 // Get notes based on role
 app.get('/api/notes', (req, res) => {
-  const { role } = req.query;
+  const { role, username } = req.query;
   
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
   }
 
   let query = 'SELECT * FROM notes';
-  
-  // Regular users see only their own notes
+
+  // Regular users see only their own notes (created_by === username)
   if (role === 'user') {
-    query += ` WHERE created_by = '${role}'`;
+    if (!username) return res.status(400).json({ error: 'Missing username for user role' });
+    query += ` WHERE created_by = '${username}'`;
   }
   
   query += ' ORDER BY created_at DESC';
@@ -85,7 +103,7 @@ app.get('/api/notes', (req, res) => {
 // Get single note
 app.get('/api/notes/:id', (req, res) => {
   const { id } = req.params;
-  const { role } = req.query;
+  const { role, username } = req.query;
   
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
@@ -100,7 +118,7 @@ app.get('/api/notes/:id', (req, res) => {
     }
     
     // Check permissions
-    if (!canAccessNote(role, note.created_by)) {
+    if (!canAccessNote(role, note.created_by, username)) {
       return res.status(403).json({ error: 'Access denied' });
     }
     
@@ -110,17 +128,22 @@ app.get('/api/notes/:id', (req, res) => {
 
 // Create note
 app.post('/api/notes', (req, res) => {
-  const { title, content, role } = req.body;
+  const { title, content, role, username } = req.body;
 
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
+  }
+
+  if (role === 'user' && !username) {
+    return res.status(400).json({ error: 'Missing username for user role' });
   }
 
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
   }
 
-  const query = `INSERT INTO notes (title, content, created_by) VALUES ('${title}', '${content}', '${role}')`;
+  const creator = role === 'admin' ? (username || 'admin') : username;
+  const query = `INSERT INTO notes (title, content, created_by) VALUES ('${title}', '${content}', '${creator}')`;
   
   db.run(query, function(err) {
     if (err) {
@@ -137,7 +160,7 @@ app.post('/api/notes', (req, res) => {
 // Update note
 app.put('/api/notes/:id', (req, res) => {
   const { id } = req.params;
-  const { title, content, role } = req.body;
+  const { title, content, role, username } = req.body;
  
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
@@ -153,7 +176,7 @@ app.put('/api/notes/:id', (req, res) => {
     }
     
     // Check permissions
-    if (!canModifyNote(role, note.created_by)) {
+    if (!canModifyNote(role, note.created_by, username)) {
       return res.status(403).json({ error: 'Access denied - you can only edit your own notes' });
     }
     
@@ -171,7 +194,7 @@ app.put('/api/notes/:id', (req, res) => {
 // Delete note
 app.delete('/api/notes/:id', (req, res) => {
   const { id } = req.params;
-  const { role } = req.query;
+  const { role, username } = req.query;
   
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
@@ -187,7 +210,7 @@ app.delete('/api/notes/:id', (req, res) => {
     }
     
     // Check permissions
-    if (!canModifyNote(role, note.created_by)) {
+    if (!canModifyNote(role, note.created_by, username)) {
       return res.status(403).json({ error: 'Access denied - you can only delete your own notes' });
     }
     
@@ -203,7 +226,7 @@ app.delete('/api/notes/:id', (req, res) => {
 // Search notes
 app.get('/api/notes/search/:query', (req, res) => {
   const { query } = req.params;
-  const { role } = req.query;
+  const { role, username } = req.query;
   
   if (!role || (role !== 'admin' && role !== 'user')) {
     return res.status(400).json({ error: 'Invalid or missing role' });
@@ -213,7 +236,8 @@ app.get('/api/notes/search/:query', (req, res) => {
   
   // Regular users see only their own notes
   if (role === 'user') {
-    sql += ` AND created_by = '${role}'`;
+    if (!username) return res.status(400).json({ error: 'Missing username for search' });
+    sql += ` AND created_by = '${username}'`;
   }
   
   db.all(sql, (err, notes) => {
