@@ -278,7 +278,7 @@ app.post('/api/login', (req, res) => {
     return res.json({ success: false, error: 'Please provide email and password.' });
   }
   const user = users.find(u =>
-    u.email.toLowerCase() === email.toLowerCase() &&
+    u.email === email &&
     u.password === password
   );
   if (user) {
