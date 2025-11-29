@@ -47,7 +47,6 @@ function initializeDatabase() {
       }
     });
 
-    // Remove unwanted sample notes (shopping list, meeting notes) if present
     db.run("DELETE FROM notes WHERE id IN (2,3) OR title IN ('Shopping List','Meeting Notes')", (err) => {
       if (err) {
         console.error('Error deleting sample notes:', err.message || err);
