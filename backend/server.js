@@ -61,8 +61,6 @@ function initializeDatabase() {
 }
 
 // ============ NOTES ROUTES ============
-// Check if user can access note
-// Check if user can access note. For non-admins, compare by username.
 function canAccessNote(role, createdBy, username) {
   if (role === 'admin') return true;
   return createdBy === username;
